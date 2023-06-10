@@ -18,9 +18,7 @@ const useCart = () => {
     //   return res.json();
     // },
     queryFn: async () => {
-      const res = await axiosSecure(`/carts?email=${user?.email}`);
-      console.log("res from axios", res);
-      return res.data;
+      const res = await axiosSecure(`/carts?email=${user?.email}`);      return res.data;
     },
   });
   return [cart, refetch];
