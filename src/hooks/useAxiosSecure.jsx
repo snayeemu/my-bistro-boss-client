@@ -36,7 +36,7 @@ const useAxiosSecure = () => {
       await logOut();
       navigate("/login");
     };
-  }, [axiosSecure, logOut, navigate]);
+  }, [logOut, navigate]);
 
   return [axiosSecure];
 };

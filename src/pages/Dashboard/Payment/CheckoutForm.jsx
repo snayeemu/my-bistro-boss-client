@@ -2,9 +2,12 @@ import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import useAuth from "../../../hooks/uesAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import useCart from "../../../hooks/useCart";
+import "./CheckoutForm.css";
 
 const CheckoutForm = ({ price }) => {
   const stripe = useStripe();
+  const [cart] = useCart();
   const elements = useElements();
   const [axiosSecure] = useAxiosSecure();
   const [cardError, setCardError] = useState("");
@@ -73,6 +76,22 @@ const CheckoutForm = ({ price }) => {
     if (paymentIntent.status === "succeeded") {
       setTransactionId(paymentIntent.id);
       //   todo: next steps
+      const payment = {
+        email: user?.email,
+        transactionId: paymentIntent.id,
+        price: price,
+        date: new Date(),
+        quantity: cart.length,
+        cartItems: cart.map((item) => item._id),
+        menuItems: cart.map((item) => item.menuItemId),
+        status: "service pending",
+        itemNames: cart.map((item) => item.name),
+      };
+      axiosSecure.post("/payments", payment).then((res) => {
+        if (res.data.insertedId) {
+          // display confirm
+        }
+      });
     }
   };
   return (
