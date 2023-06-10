@@ -20,7 +20,7 @@ const CheckoutForm = ({ price }) => {
         setClientSecret(res.data.clientSecret);
       });
     }
-  }, []);
+  }, [axiosSecure, price]);
 
   const handleSubmit = async (event) => {
     // Block native form submission.
