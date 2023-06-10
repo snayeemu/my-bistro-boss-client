@@ -10,6 +10,8 @@ const CheckoutForm = ({ price }) => {
   const [cardError, setCardError] = useState("");
   const { user } = useAuth();
   const [clientSecret, setClientSecret] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
 
   useEffect(() => {
     if (price > 0) {
@@ -38,7 +40,7 @@ const CheckoutForm = ({ price }) => {
     }
 
     // Use your card Element with other Stripe.js APIs
-    const { error, paymentMethod } = await stripe.createPaymentMethod({
+    const { error } = await stripe.createPaymentMethod({
       type: "card",
       card,
     });
@@ -48,8 +50,10 @@ const CheckoutForm = ({ price }) => {
       setCardError(error.message);
     } else {
       setCardError("");
-      console.log("[PaymentMethod]", paymentMethod);
+      //   console.log("[PaymentMethod]", paymentMethod);
     }
+
+    setProcessing(true);
 
     const { paymentIntent, error: confirmError } =
       await stripe.confirmCardPayment(clientSecret, {
@@ -64,6 +68,12 @@ const CheckoutForm = ({ price }) => {
     if (confirmError) console.log(confirmError);
 
     console.log("payment intent", paymentIntent);
+
+    setProcessing(false);
+    if (paymentIntent.status === "succeeded") {
+      setTransactionId(paymentIntent.id);
+      //   todo: next steps
+    }
   };
   return (
     <>
@@ -87,12 +97,17 @@ const CheckoutForm = ({ price }) => {
         <button
           className="btn btn-primary btn-sm mt-4"
           type="submit"
-          disabled={!stripe || !clientSecret}
+          disabled={!stripe || !clientSecret || processing}
         >
           Pay
         </button>
       </form>
       {cardError && <p className="text-red-600 ml-8">{cardError}</p>}
+      {transactionId && (
+        <p className="text-green-500">
+          Transaction completed with transactionId: {transactionId}
+        </p>
+      )}
     </>
   );
 };
